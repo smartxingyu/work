@@ -20,7 +20,6 @@ def read_file(file):
 def SGD(dataMatrix, classLabels):
     c = dataMatrix.shape
     weights=np.zeros((1,c[1]))
-    print(weights.shape)
     d = [x for x in range(c[0])]
     for j in range(2):
         random.shuffle(d)

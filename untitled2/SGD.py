@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import random
 file=open('dataset1-a9a-training.txt','r')
 file1=open('dataset1-a9a-testing.txt','r')
@@ -17,36 +18,45 @@ def read_file(file):
         dataMatrix.append(matrix[i][0:len(matrix[0])-1])
         classLabels.append([matrix[i][len(matrix[0])-1]])
     return np.mat(dataMatrix),np.mat(classLabels)
-def SGD(dataMatrix, classLabels):
-    c = dataMatrix.shape
-    weights=np.zeros((1,c[1]))
-    d = [x for x in range(c[0])]
-    for j in range(2):
-        random.shuffle(d)
-        for i in d:
-            alpha = 0.01
-            weights=(1-4*alpha)*weights+2*alpha*dataMatrix[i]*(int(classLabels[i])-float(np.dot(dataMatrix[i],weights.T)))
-    return weights
-a,b=read_file(file)
-c,d=read_file(file1)
-B=SGD(a,b)
-print(B)
 def error_rate(B,c1,d1):
     e=c1.shape
     error=0
-    count=0
-    count1=0
     for i in range(e[0]):
         h=float(np.dot(c1[i],B.T))
         if d1[i]*h<=0:
             error=error+1
-        if h<0:
-            count=count+1
-        if d1[i]<0:
-            count1=count1+1
-    print(error/e[0])
-    print(count/e[0])
-    # print(count1/e[0])
-error_rate(B,c,d)
+    return (error/e[0])
+def SGD(dataMatrix, classLabels):
+    print(1)
+    c = dataMatrix.shape
+    error_list=[]
+    weights=np.zeros((1,c[1]))
+    d = [x for x in range(c[0])]
+    m=int(10*c[0]/100)
+    for j in range(10):
+        random.shuffle(d)
+        for i in d:
+            alpha = 0.01
+            lam=0.001
+            weights=(1-2*lam*alpha)*weights+2*alpha*dataMatrix[i]*(int(classLabels[i])-float(np.dot(dataMatrix[i],weights.T)))
+            m=m-1
+            if m==0:
+                error_list.append(error_rate(weights,dataMatrix,classLabels))
+                m=int(10*c[0]/100)
+    return error_list
+if __name__ == '__main__':
+    a,b=read_file(file)
+    c,d=read_file(file1)
+    error_table=SGD(a,b)
+    print(len(error_table))
+    frequency=[x*0.01*10 for x in range(0,100)]
+    plt.plot(frequency, error_table, 'b*')
+    plt.plot(frequency, error_table, 'r')
+    plt.xlabel('frequency')
+    plt.ylabel('error rate')
+    plt.ylim(0, 1)
+    plt.title('line_regression & gradient decrease')
+    plt.legend()
+    plt.show()
 
 
